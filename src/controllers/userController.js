@@ -55,6 +55,7 @@ const loginUser = async (req, res) => {
       return res.status(400).json({
         message: 'User does not exist',
         code: 400,
+        ok: false,
       });
     }
 
@@ -63,6 +64,7 @@ const loginUser = async (req, res) => {
       return res.status(400).json({
         message: 'Email or password is incorrect',
         code: 400,
+        ok: false,
       });
     }
 
@@ -77,12 +79,14 @@ const loginUser = async (req, res) => {
         role: user.role,
       },
       token,
+      ok: true,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       message: 'server error',
       code: 500,
+      ok: false,
     });
   }
 };
