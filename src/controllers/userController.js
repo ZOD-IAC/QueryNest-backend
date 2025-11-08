@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import genToken from '../utils/generateToken.js';
 import User from '../models/user.js';
+import multiavatar from '@multiavatar/multiavatar/esm';
 
 const createUser = async (req, res) => {
   try {
@@ -15,11 +16,14 @@ const createUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashPass = await bcrypt.hash(password, salt);
 
+    const avatar = multiavatar(name);
+
     const newUser = await User.create({
       name,
       email: email,
       password: hashPass,
       reputation: 0,
+      avatar: avatar,
       role: 'user',
     });
 
@@ -32,6 +36,7 @@ const createUser = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         role: newUser.role,
+        avatar: avatar,
         reputation: newUser.reputation,
       },
       token: token,
@@ -77,6 +82,7 @@ const loginUser = async (req, res) => {
         email: user.email,
         reputation: user.reputation,
         role: user.role,
+        avatar: user.avatar,
       },
       token,
       ok: true,
