@@ -16,10 +16,17 @@ const createAdmin = async () => {
     const admin = User.create({
       name: 'Super Admin',
       email: 'admin@querynest.com',
+      bio: "hi i'm admin , boss of this app",
+      location: 'Delhi ,In',
       password: hashpass,
       role: 'admin',
       avatar: avatar,
       reputation: 99999999,
+      stats: {
+        quesions: 999,
+        answers: 999,
+        accepted: 999,
+      },
     });
 
     console.log(

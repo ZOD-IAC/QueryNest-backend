@@ -1,14 +1,53 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
-const questionSchema = new mongoose.Schema(
+const questionSchema = new Schema(
   {
-    title: { type: String, required: true, trim: true },
-    body: { type: String, required: true },
-    code: { type: String },
-    tags: [{ type: String, required: true, trim: true }],
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    upvotes: { type: Number, default: 0 },
-    downvotes: { type: Number, default: 0 },
+    title: {
+      type: String,
+      required: [true, 'Question title is required'],
+      trim: true,
+    },
+    body: {
+      type: String,
+      required: [true, 'Question body is required'],
+      trim: true,
+    },
+    code: {
+      type: String, // optional code snippet (frontend can syntax-highlight it)
+      default: '',
+    },
+    tags: {
+      type: [String],
+      validate: {
+        validator: (arr) => arr.length > 0,
+        message: 'At least one tag is required',
+      },
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    upvotes: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    downvotes: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    views: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    answersCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
