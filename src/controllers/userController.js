@@ -16,7 +16,7 @@ const createUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashPass = await bcrypt.hash(password, salt);
 
-    const avatar = multiavatar(name);
+    const avatar = multiavatar(name, true, { part: '10', theme: 'B' });
 
     const newUser = await User.create({
       name,
@@ -98,4 +98,33 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { createUser, loginUser };
+const getUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId)
+      .select('-password')
+      .populate('questions')
+      // .populate('answers');
+
+    if (!user) {
+      return res.status(400).json({
+        message: 'User not found',
+        ok: false,
+      });
+    }
+
+    return res.status(200).json({
+      message: 'User fetched successfully',
+      user,
+      ok: true,
+    });
+  } catch (error) {
+    // console.warn(error, ': server error');
+    return res.status(500).json({
+      message: 'something went wrong',
+      ok: false,
+    });
+  }
+};
+
+export { createUser, loginUser, getUser };

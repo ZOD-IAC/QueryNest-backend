@@ -16,7 +16,7 @@ const createAdmin = async () => {
     const admin = User.create({
       name: 'Super Admin',
       email: 'admin@querynest.com',
-      bio: "hi i'm admin , boss of this app",
+      bio: "hi I'm admin, boss of this app",
       location: 'Delhi ,In',
       password: hashpass,
       role: 'admin',
@@ -34,7 +34,7 @@ const createAdmin = async () => {
       `admin: ${admin[email]} \n , pass : Admin@123`
     );
   } catch (error) {
-    console.error('❌ Failed to create admin:', err.message);
+    console.error('❌ Failed to create admin:', error.message);
   }
 };
 

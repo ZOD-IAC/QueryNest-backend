@@ -24,21 +24,9 @@ const questionSchema = new Schema(
         message: 'At least one tag is required',
       },
     },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    upvotes: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    downvotes: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    upvotes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    downvotes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     views: {
       type: Number,
       default: 0,
