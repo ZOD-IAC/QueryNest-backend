@@ -27,18 +27,17 @@ const questionSchema = new Schema(
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     upvotes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     downvotes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    views: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    answersCount: {
-      type: Number,
-      default: 0,
-    },
+    views: { type: Number, default: 0, min: 0 },
+    answersCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
+
+questionSchema.virtual('answers', {
+  ref: 'Answer',
+  localField: '_id',
+  foreignField: 'questionId',
+});
 
 const Question = mongoose.model('Question', questionSchema);
 export default Question;

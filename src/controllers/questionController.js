@@ -96,3 +96,35 @@ export const userQuestion = async (req, res) => {
     });
   }
 };
+
+export const fetchQuestoinDetail = async (req, res) => {
+  try {
+    const { questionId } = req.params;
+
+    const question = await Question.findOneAndUpdate(
+      { _id: questionId },
+      {
+        $inc: { views: 1 },
+      }
+    ).populate('answers');
+
+    if (!question) {
+      return res.status(400).json({
+        message: 'Question not found !',
+        ok: false,
+      });
+    }
+
+    res.status(200).json({
+      question,
+      ok: true,
+      message: 'question fetched successfully',
+    });
+  } catch (error) {
+    console.warn(error, ': error');
+    return res.status(400).json({
+      message: 'Question not found !',
+      ok: false,
+    });
+  }
+};

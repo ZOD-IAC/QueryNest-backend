@@ -3,6 +3,7 @@ import { protect } from '../middleware/authMiddleware.js';
 import {
   createQuestion,
   deleteQuestion,
+  fetchQuestoinDetail,
   userQuestion,
 } from '../controllers/questionController.js';
 
@@ -22,9 +23,7 @@ route.post('/edit-question', (req, res) => {
   res.send('logiin page');
 });
 
-route.post('/get-question', (req, res) => {
-  res.send('logiin page');
-});
+route.get('/api/get-question/:questionId', fetchQuestoinDetail);
 
 route.get('/get-question/:questionId', (req, res) => {
   res.send('logiin page');
