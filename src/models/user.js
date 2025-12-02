@@ -17,6 +17,28 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+<<<<<<< Updated upstream
+=======
+// Virtual: User -> Questions
+userSchema.virtual("questions", {
+  ref: "Question",
+  localField: "_id",
+  foreignField: "user",
+});
+
+
+// User -> gives many Answers
+userSchema.virtual("answer", {
+  ref: "Answer",
+  localField: "_id",
+  foreignField: "user",
+});
+
+
+userSchema.set("toObject", { virtuals: true });
+userSchema.set("toJSON", { virtuals: true });
+
+>>>>>>> Stashed changes
 const User = mongoose.model('User', userSchema);
 
 export default User;
