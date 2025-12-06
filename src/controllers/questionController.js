@@ -105,8 +105,11 @@ export const fetchQuestoinDetail = async (req, res) => {
       { _id: questionId },
       {
         $inc: { views: 1 },
-      }
-    ).populate('answers');
+      },
+      { new: true }
+    )
+      .populate({ path: 'answers'})
+      .populate('user', 'name avatar reputation');
 
     if (!question) {
       return res.status(400).json({

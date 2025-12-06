@@ -6,8 +6,6 @@ export const answerQuestion = async (req, res) => {
   try {
     const { content, code, questionId } = req.body;
 
-    console.log(req.body, '<<-- body ');
-
     const question = await Question.findOneAndUpdate(
       { _id: questionId },
       {

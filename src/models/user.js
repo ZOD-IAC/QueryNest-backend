@@ -28,10 +28,10 @@ userSchema.virtual("questions", {
 
 
 // User -> gives many Answers
-userSchema.virtual("answers", {
+userSchema.virtual("answer", {
   ref: "Answer",
   localField: "_id",
-  foreignField: "user", // MUST match Answer.user
+  foreignField: "user",
 });
 
 
