@@ -1,6 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import { createUser, loginUser } from '../controllers/userController.js';
+import { createUser, getUser, loginUser } from '../controllers/userController.js';
 
 const route = express.Router();
 
@@ -11,6 +11,8 @@ route.get('/', (req, res) => {
 route.post('/api/register', createUser);
 
 route.post('/api/login', loginUser);
+
+route.get('/api/get-user/:userId', getUser);
 
 route.post('/api/edit-user', (req, res) => {
   res.send('logiin page');

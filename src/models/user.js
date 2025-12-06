@@ -1,17 +1,19 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-const userSchema = new mongoose.Schema(
+const userSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, lowecase: true },
-    password: { type: String, required: true, minlength: 6 },
-    avatar: { type: String, default: '' },
-    reputation: { type: Number, required: 0 },
-    role: {
-      type: String,
-      enum: ['admin', 'user'],
-      default: 'user',
-      required: true,
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String, required: true },
+    role: { type: String, default: 'user', enum: ['user', 'admin'] },
+    bio: { type: String, default: '' },
+    location: { type: String, default: '' },
+    avatar: { type: String, default: '' }, // SVG string or data URI
+    reputation: { type: Number, default: 0 },
+    stats: {
+      questions: { type: Number, default: 0 },
+      answers: { type: Number, default: 0 },
+      accepted: { type: Number, default: 0 },
     },
   },
   { timestamps: true }
