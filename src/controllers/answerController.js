@@ -1,5 +1,4 @@
-<<<<<<< Updated upstream
-=======
+
 import User from '../models/user.js';
 import Question from '../models/question.js';
 import Answer from '../models/answer.js';
@@ -41,4 +40,3 @@ export const answerQuestion = async (req, res) => {
     });
   }
 };
->>>>>>> Stashed changes

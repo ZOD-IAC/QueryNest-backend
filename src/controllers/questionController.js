@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 import User from '../models/user.js';
 import Question from '../models/question.js';
 
@@ -133,4 +131,3 @@ export const fetchQuestoinDetail = async (req, res) => {
     });
   }
 };
->>>>>>> Stashed changes
