@@ -13,8 +13,7 @@ const questionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-<<<<<<< Updated upstream
-=======
+
 questionSchema.virtual('answers', {
   ref: 'Answer',
   localField: "_id",
@@ -24,6 +23,5 @@ questionSchema.virtual('answers', {
 questionSchema.set("toObject", { virtuals: true });
 questionSchema.set("toJSON", { virtuals: true });
 
->>>>>>> Stashed changes
 const Question = mongoose.model('Question', questionSchema);
 export default Question;
