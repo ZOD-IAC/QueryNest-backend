@@ -31,7 +31,7 @@ const createAdmin = async () => {
 
     console.log(
       '✅ Admin user created: \n',
-      `admin: ${admin[email]} \n , pass : Admin@123`
+      `admin: ${admin['email']} \n , pass : Admin@123`
     );
   } catch (error) {
     console.error('❌ Failed to create admin:', error.message);
