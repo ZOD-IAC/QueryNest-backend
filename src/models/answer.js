@@ -15,6 +15,15 @@ const answerSchema = new Schema(
   },
   { timestamps: true }
 );
+answerSchema.virtual('question', {
+  ref: 'Question',
+  localField: "questionId",
+  foreignField: '_id',
+});
+
+answerSchema.set("toObject", { virtuals: true });
+answerSchema.set("toJSON", { virtuals: true });
+
 
 const Answer = mongoose.model('Answer', answerSchema);
 export default Answer;

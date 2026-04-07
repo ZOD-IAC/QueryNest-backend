@@ -10,7 +10,7 @@ export const answerQuestion = async (req, res) => {
       { _id: questionId },
       {
         $inc: { answersCount: 1 },
-      }
+      },
     );
 
     if (!question) {
@@ -31,6 +31,60 @@ export const answerQuestion = async (req, res) => {
       message: 'Answer generated successfully ',
       ok: true,
     });
+  } catch (error) {
+    console.warn('error :', error);
+    return res.status(400).json({
+      ok: false,
+      message: 'Server respose failed',
+    });
+  }
+};
+
+export const getAnswers = async (req, res) => {
+  try {
+    const { userId } = req.query;
+    if (!userId) return;
+    const answers = await Answer.find({ user: userId }).populate({
+      path: 'question',
+    });
+
+    if (!Answer) {
+      return res.status(200).json({
+        ok: true,
+        message: 'No Answers found for this user',
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      data: answers,
+      message: 'answer fetched successfully',
+    });
+  } catch (error) {
+    console.warn('error :', error);
+    return res.status(400).json({
+      ok: false,
+      message: 'Server respose failed',
+    });
+  }
+};
+
+export const upDownVoting = async (req, res) => {
+  try {
+    const {answerId , type} = req.query;
+    console.log(req.query , '<-- user')
+    const answer = await Answer.findOne({_id : answerId})
+    if(type === "up"){
+      answer.upvotes++
+    }else {
+      answer.downvotes--
+    }
+
+
+    return res.status(200).json({
+      message : "vote successfull",
+      ok : true
+    })
   } catch (error) {
     console.warn('error :', error);
     return res.status(400).json({

@@ -3,12 +3,11 @@ import Question from '../models/question.js';
 
 export const createQuestion = async (req, res) => {
   try {
-    const { title, content, code, tags } = req.body;
+    const { title, content, tags } = req.body;
     const { _id: userId } = req.user;
     const question = await Question.create({
       title,
       body: content,
-      code,
       tags,
       user: userId,
     });
@@ -17,7 +16,7 @@ export const createQuestion = async (req, res) => {
       { _id: userId },
       {
         $inc: { 'stats.question': 1 },
-      }
+      },
     );
 
     res.status(200).json({
@@ -54,7 +53,7 @@ export const deleteQuestion = async (req, res) => {
       { _id: userId },
       {
         $inc: { 'stats.question': -1 },
-      }
+      },
     );
 
     res.status(201).json({
@@ -106,9 +105,9 @@ export const fetchQuestoinDetail = async (req, res) => {
       {
         $inc: { views: 1 },
       },
-      { new: true }
+      { new: true },
     )
-      .populate({ path: 'answers'})
+      .populate({ path: 'answers' })
       .populate('user', 'name avatar reputation');
 
     if (!question) {
@@ -131,3 +130,12 @@ export const fetchQuestoinDetail = async (req, res) => {
     });
   }
 };
+
+export const getQuestionPageData = () =>{
+  try {
+    const question = Question.find();
+
+  } catch (error) {
+    
+  }
+}
