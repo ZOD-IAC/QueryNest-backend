@@ -1,9 +1,11 @@
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
 import {
+  addTag,
   createQuestion,
   deleteQuestion,
   fetchQuestoinDetail,
+  getQuestionTags,
   userQuestion,
 } from '../controllers/questionController.js';
 
@@ -28,5 +30,8 @@ route.get('/api/get-question/:questionId', fetchQuestoinDetail);
 route.get('/get-question/:questionId', (req, res) => {
   res.send('logiin page');
 });
+
+route.get('/api/get-tags/:tagname', getQuestionTags);
+route.post('/api/add-tags/', addTag);
 
 export default route;

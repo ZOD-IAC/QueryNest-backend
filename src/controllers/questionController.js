@@ -1,5 +1,6 @@
 import User from '../models/user.js';
 import Question from '../models/question.js';
+import Tags from '../models/tags.js';
 
 export const createQuestion = async (req, res) => {
   try {
@@ -131,11 +132,62 @@ export const fetchQuestoinDetail = async (req, res) => {
   }
 };
 
-export const getQuestionPageData = () =>{
+export const getQuestionPageData = () => {
   try {
     const question = Question.find();
+  } catch (error) {}
+};
 
+export const getQuestionTags = async (req, res) => {
+  try {
+    const { tagname } = req.params;
+
+    const tags = await Tags.find({
+      tagName: { $regex: tagname, $options: 'i' },
+    });
+    console.log(tags, '<----- tagssssssssssss');
+    res.status(200).json({
+      data: tags,
+      ok: true,
+      message: 'Tags fetched successfully',
+    });
   } catch (error) {
-    
+    console.log(error, 'Something went wrong!');
+    return res.status(400).json({
+      message: 'Question not found !',
+      ok: false,
+    });
   }
-}
+};
+
+export const addTag = async (req, res) => {
+  try {
+    const { tag } = req.body;
+    const tagName = tag.toLowerCase();
+    let existingTag = await Tags.findOne({ tagName });
+
+    if (existingTag) {
+      return res.json({
+        newtag: existingTag,
+        ok: true,
+      });
+    }
+
+    const newtag = await Tags.create({
+      tagName: tagName,
+      slug: tagName.replace(' ', '-'),
+    });
+
+    res.status(200).json({
+      newtag,
+      ok: true,
+      message: 'Tags fetched successfully',
+    });
+  } catch (error) {
+    console.log(error, 'Something went wrong!');
+    return res.status(400).json({
+      message: 'Question not found !',
+      ok: false,
+    });
+  }
+};
