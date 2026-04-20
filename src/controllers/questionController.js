@@ -13,6 +13,17 @@ export const createQuestion = async (req, res) => {
       user: userId,
     });
 
+    await Tags.bulkWrite(
+      tags.map((tag) => ({
+        updateOne: {
+          filter: {
+            tagName: tag;
+          },
+          update : { $inc : {usageCount : 1}}
+        }
+      })),
+    );
+
     const user = await User.findByIdAndUpdate(
       { _id: userId },
       {
