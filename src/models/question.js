@@ -27,6 +27,12 @@ const questionSchema = new Schema(
   { timestamps: true },
 );
 
+const questionVoteSchema = new Schema({
+  questionId: { type: Schema.Types.ObjectId, ref: "Qeustion" },
+  userId: { type: Schema.Types.ObjectId, ref: "User" },
+  voteType: { type: Number, required: true },
+});
+
 questionSchema.virtual("answers", {
   ref: "Answer",
   localField: "_id",
@@ -37,3 +43,4 @@ questionSchema.set("toObject", { virtuals: true });
 questionSchema.set("toJSON", { virtuals: true });
 
 export const Question = mongoose.model("Question", questionSchema);
+export const QuestionVote = mongoose.model("QuestionVote", questionVoteSchema);

@@ -1,6 +1,7 @@
 import User from "../models/user.js";
-import { Question } from "../models/question.js";
+import { Question, QuestionVote } from "../models/question.js";
 import Tags from "../models/tags.js";
+import { VoteOption } from "../utils/Constants.js";
 
 export const createQuestion = async (req, res) => {
   try {
@@ -193,6 +194,37 @@ export const addTag = async (req, res) => {
     console.log(error, "Something went wrong!");
     return res.status(400).json({
       message: "Question not found !",
+      ok: false,
+    });
+  }
+};
+
+export const questionVote = (req, res) => {
+  try {
+    const { voteType } = req.query;
+    const { questionID } = req.params;
+    console.log(req.user, "<<- bodyyyyyyyy");
+
+    if (!voteType) {
+      res.status(404).json({ ok: false, message: "voteType is required" });
+    }
+    if (!questionID) {
+      res.status(404).json({ ok: false, message: "questionID is required" });
+    }
+
+    const Voted = QuestionVote.find({
+      questionId: questionID,
+      userId: req.user._id,
+    });
+
+    res.status(200).json({
+      ok: true,
+      message: `question is ${VoteOption[voteType]}`,
+    });
+  } catch (error) {
+    console.warn(error, ": error");
+    return res.status(400).json({
+      message: "Server error !",
       ok: false,
     });
   }
