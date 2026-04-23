@@ -1,5 +1,5 @@
 import User from "../models/user.js";
-import { QuestionTag, Question } from "../models/question.js";
+import { Question } from "../models/question.js";
 import Tags from "../models/tags.js";
 
 export const createQuestion = async (req, res) => {
@@ -23,13 +23,6 @@ export const createQuestion = async (req, res) => {
       })),
     );
 
-    await QuestionTag.insertMany(
-      tags.map((tag) => ({
-        questionId: question._id,
-        tagId: tag,
-      })),
-    );
-
     await User.findByIdAndUpdate(userId, { $inc: { "stats.question": 1 } });
 
     res.status(200).json({
@@ -37,8 +30,6 @@ export const createQuestion = async (req, res) => {
       ok: true,
     });
   } catch (error) {
-    console.log(error, "<,,,,,,,,,");
-
     res.status(500).json({
       message: "Something went wrong",
       ok: false,
@@ -131,8 +122,11 @@ export const fetchQuestoinDetail = async (req, res) => {
       });
     }
 
+    const tags = await Tags.find({ _id: { $in: question.tags } });
+    if (!tags) tags = [];
+
     res.status(200).json({
-      question,
+      data: { question, tags },
       ok: true,
       message: "question fetched successfully",
     });

@@ -1,22 +1,22 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
-import genToken from '../utils/generateToken.js';
-import User from '../models/user.js';
-import multiavatar from '@multiavatar/multiavatar/esm';
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import genToken from "../utils/generateToken.js";
+import User from "../models/user.js";
+import multiavatar from "@multiavatar/multiavatar/esm";
 
 const createUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const existUser = await User.findOne({ email }).select('-password');
+    const existUser = await User.findOne({ email }).select("-password");
 
     if (existUser) {
-      res.status(400).json({ message: 'User already exist', ok: false });
+      res.status(400).json({ message: "User already exist", ok: false });
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashPass = await bcrypt.hash(password, salt);
 
-    const avatar = multiavatar(name, true, { part: '10', theme: 'B' });
+    const avatar = multiavatar(name, true, { part: "10", theme: "B" });
 
     const newUser = await User.create({
       name,
@@ -24,13 +24,13 @@ const createUser = async (req, res) => {
       password: hashPass,
       reputation: 0,
       avatar: avatar,
-      role: 'user',
+      role: "user",
     });
 
     const token = genToken(newUser._id);
 
     res.status(201).json({
-      message: 'User created successfully',
+      message: "User created successfully",
       user: {
         id: newUser._id,
         name: newUser.name,
@@ -43,24 +43,23 @@ const createUser = async (req, res) => {
       ok: true,
     });
   } catch (error) {
-    console.log(error, 'error occured');
+    console.log(error, "error occured");
     res.status(500).json({
       code: 500,
-      message: 'something went wrong',
+      message: "something went wrong",
       ok: false,
     });
   }
 };
 
 const loginUser = async (req, res) => {
-  console.log(req ,'<--- boduyy request')
   const { email, password } = req.body;
-  
+
   try {
     const user = await User.findOne({ email: email });
     if (!user) {
       return res.status(400).json({
-        message: 'User does not exist',
+        message: "User does not exist",
         code: 400,
         ok: false,
       });
@@ -69,7 +68,7 @@ const loginUser = async (req, res) => {
     const verify = await bcrypt.compare(password, user.password);
     if (!verify) {
       return res.status(400).json({
-        message: 'Email or password is incorrect',
+        message: "Email or password is incorrect",
         code: 400,
         ok: false,
       });
@@ -78,7 +77,7 @@ const loginUser = async (req, res) => {
     const token = genToken(user._id);
 
     res.status(200).json({
-      message: 'User logged in successfully',
+      message: "User logged in successfully",
       user: {
         id: user._id,
         name: user.name,
@@ -93,7 +92,7 @@ const loginUser = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: 'server error',
+      message: "server error",
       code: 500,
       ok: false,
     });
@@ -104,26 +103,31 @@ const getUser = async (req, res) => {
   try {
     const { userId } = req.params;
     const user = await User.findById(userId)
-      .select('-password')
-      .populate('questions')
-      // .populate('answers');
+      .select("-password")
+      .populate({
+        path: "questions",
+        populate: {
+          path: "tags", // ✅ nested populate — tags inside each question
+          model: "Tags",
+        },
+      });
 
     if (!user) {
       return res.status(400).json({
-        message: 'User not found',
+        message: "User not found",
         ok: false,
       });
     }
 
     return res.status(200).json({
-      message: 'User fetched successfully',
+      message: "User fetched successfully",
       user,
       ok: true,
     });
   } catch (error) {
-    // console.warn(error, ': server error');
+    console.warn(error, ": server error");
     return res.status(500).json({
-      message: 'something went wrong',
+      message: "something went wrong",
       ok: false,
     });
   }
