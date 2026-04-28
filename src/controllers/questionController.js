@@ -1,5 +1,5 @@
 import User from "../models/user.js";
-import { Question, QuestionVote } from "../models/question.js";
+import { Question, Vote } from "../models/question.js";
 import Tags from "../models/tags.js";
 import { VoteOption } from "../utils/Constants.js";
 
@@ -8,7 +8,7 @@ export const createQuestion = async (req, res) => {
     const { title, content, tags } = req.body;
     const { _id: userId } = req.user;
 
-    const question = await Question.create({
+    await Question.create({
       title,
       body: content,
       tags,
@@ -199,27 +199,71 @@ export const addTag = async (req, res) => {
   }
 };
 
-export const questionVote = (req, res) => {
+export const questionVote = async (req, res) => {
   try {
     const { voteType } = req.query;
     const { questionID } = req.params;
-    console.log(req.user, "<<- bodyyyyyyyy");
 
-    if (!voteType) {
-      res.status(404).json({ ok: false, message: "voteType is required" });
-    }
-    if (!questionID) {
-      res.status(404).json({ ok: false, message: "questionID is required" });
+    if (!voteType || !VoteOption[voteType]) {
+      res.status(400).json({
+        ok: false,
+        message: "Valid voteType is required. 1 = upvote, 2 = downvote",
+      });
     }
 
-    const Voted = QuestionVote.find({
-      questionId: questionID,
+    const question = await Question.findById(questionID);
+    if (!question) {
+      return res.status(404).json({
+        ok: false,
+        message: "Question Not Found!",
+      });
+    }
+
+    if (question.user.toString() === req.user._id.toString()) {
+      return res.status(403).json({
+        ok: false,
+        message: "Cannot Vote your Own Question.",
+      });
+    }
+
+    const existingVoted = await Vote.findOne({
+      targetId: questionID,
       userId: req.user._id,
     });
 
-    res.status(200).json({
+    if (existingVoted) {
+      if (existingVoted["voteType"] === VoteOption[voteType]) {
+        await Vote.deleteOne({ _id: existingVoted._id });
+        question[VoteOption[voteType]] -= 1;
+      } else {
+        await Vote.findOneAndUpdate(
+          { _id: existingVoted._id },
+          { voteType: VoteOption[voteType] },
+        );
+        question[existingVoted.voteType] -= 1;
+        question[VoteOption[voteType]] += 1;
+      }
+    } else {
+      await Vote.create({
+        userId: req.user._id,
+        targetId: question._id,
+        targetType: "Question",
+        voteType: VoteOption[voteType],
+      });
+
+      question[VoteOption[voteType]] += 1;
+    }
+
+    await question.save();
+
+    return res.status(200).json({
       ok: true,
-      message: `question is ${VoteOption[voteType]}`,
+      message: `you ${VoteOption[voteType]} this Question`,
+      data: {
+        upvote: question.upvote,
+        downvote: question.downvote,
+        voted: question.upvote + question.downvote,
+      },
     });
   } catch (error) {
     console.warn(error, ": error");

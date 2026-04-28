@@ -13,25 +13,25 @@ const questionSchema = new Schema(
       required: [true, "Question body is required"],
       trim: true,
     },
-    code: {
-      type: String, // optional code snippet (frontend can syntax-highlight it)
-      default: "",
-    },
     tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tags" }],
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    upvotes: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    downvotes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    upvotes: { type: Number, default: 0, min: 0 },
+    downvotes: { type: Number, default: 0, min: 0 },
     views: { type: Number, default: 0, min: 0 },
     answersCount: { type: Number, default: 0 },
   },
   { timestamps: true },
 );
 
-const questionVoteSchema = new Schema({
-  questionId: { type: Schema.Types.ObjectId, ref: "Qeustion" },
-  userId: { type: Schema.Types.ObjectId, ref: "User" },
-  voteType: { type: Number, required: true },
-});
+const VoteSchema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    targetId: { type: Schema.Types.ObjectId, required: true }, // questionId or answerId
+    targetType: { type: String, enum: ["Question", "Answer"] }, // reusable for answers too
+    voteType: { type: String, enum: ["upvote", "downvote"] },
+  },
+  { timestamps: true },
+);
 
 questionSchema.virtual("answers", {
   ref: "Answer",
@@ -43,4 +43,4 @@ questionSchema.set("toObject", { virtuals: true });
 questionSchema.set("toJSON", { virtuals: true });
 
 export const Question = mongoose.model("Question", questionSchema);
-export const QuestionVote = mongoose.model("QuestionVote", questionVoteSchema);
+export const Vote = mongoose.model("Vote", VoteSchema);
