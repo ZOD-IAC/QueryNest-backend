@@ -16,7 +16,7 @@ route.get("/", (req, res) => {
   res.send("question routes");
 });
 
-route.post("/add-question", protect, createQuestion);
+route.post("/create-question", protect, createQuestion);
 
 route.post("/del-question", protect, deleteQuestion);
 
