@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import genToken from "../utils/generateToken.js";
+import { genToken, genRefreshToken } from "../utils/generateToken.js";
 import User from "../models/user.js";
 import multiavatar from "@multiavatar/multiavatar/esm";
+import { RefreshToken } from "../models/RefreshToken.js";
 
 const createUser = async (req, res) => {
   try {
@@ -75,6 +76,27 @@ const loginUser = async (req, res) => {
     }
 
     const token = genToken(user._id);
+    const refreshToken = genRefreshToken();
+
+    await RefreshToken.create({
+      userId: user._id,
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.status(200).json({
       message: "User logged in successfully",
@@ -86,7 +108,6 @@ const loginUser = async (req, res) => {
         role: user.role,
         avatar: user.avatar,
       },
-      token,
       ok: true,
     });
   } catch (error) {
@@ -97,6 +118,44 @@ const loginUser = async (req, res) => {
       ok: false,
     });
   }
+};
+
+const logout = async (req, res) => {
+  const token = req.cookies.refreshToken;
+  try {
+    if (token) {
+      await RefreshToken.deleteOne({ token });
+    }
+
+    res.clearCookie("token");
+    res.clearCookie("refreshToken");
+    res.status(200).json({ message: "Logged out", ok: true });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong!", ok: false });
+  }
+};
+
+const refreshAccessToken = async (req, res) => {
+  const token = req.cookies.refreshToken;
+
+  if (!token) return res.status(401).json({ ok: false });
+
+  const stored = await RefreshToken.findOne({ token });
+
+  if (!stored || stored.expiresAt < new Date()) {
+    return res.status(403).json({ ok: false });
+  }
+
+  const accessToken = generateAccessToken(stored.userId);
+
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "Strict",
+    maxAge: 15 * 60 * 1000,
+  });
+
+  res.json({ ok: true });
 };
 
 const getUser = async (req, res) => {
@@ -133,4 +192,4 @@ const getUser = async (req, res) => {
   }
 };
 
-export { createUser, loginUser, getUser };
+export { createUser, loginUser, getUser, logout, refreshAccessToken };
