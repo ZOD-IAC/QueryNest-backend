@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const tagSchema = new mongoose.Schema(
   {
@@ -18,7 +18,7 @@ const tagSchema = new mongoose.Schema(
 
     description: {
       type: String,
-      default: '',
+      default: "",
     },
 
     usageCount: {
@@ -29,5 +29,5 @@ const tagSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-const Tags = mongoose.model('Tags', tagSchema);
+const Tags = mongoose.model("Tags", tagSchema);
 export default Tags;
