@@ -10,15 +10,12 @@ const getQuestionRelatedToUser = async (
   return await findByUser(userId, options);
 };
 
-const getQuestionRelatedToFilter = async (
-  options,
-) => {
-  const tagArr = options?.tags?.split(',') || [];
+const getQuestionRelatedToFilter = async (options) => {
+  const tagArr = options?.tags?.split(",") || [];
   options = {
     ...options,
-    tags : tagArr
-  }
-console.log(options ,'<--- options')
+    tags: tagArr,
+  };
   return await findByFilter(options);
 };
 export { getQuestionRelatedToUser, getQuestionRelatedToFilter };

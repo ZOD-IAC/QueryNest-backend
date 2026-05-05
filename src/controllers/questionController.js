@@ -148,13 +148,13 @@ export const getQuestionList = async (req, res) => {
 
     return res.status(200).json({
       ok: true,
-      message: "Question List fetched!",
+      message: `${questions.length} questions fetched!`,
       questions,
     });
   } catch (error) {
     console.warn(error, ": error");
     return res.status(400).json({
-      message: "Question not found !",
+      message: "server error : failed to fetch!",
       ok: false,
     });
   }

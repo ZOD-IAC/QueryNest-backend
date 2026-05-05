@@ -10,7 +10,7 @@ const findByUser = async (userId, options) => {
 };
 
 const findByFilter = async (options) => {
-  const { tags, title, sort, limit } = options;
+  const { tags, title, sort, limit, user } = options;
 
   const filter = {};
 
@@ -18,21 +18,23 @@ const findByFilter = async (options) => {
   if (title) {
     filter.title = { $regex: title, $options: "i" };
   }
+  //search by user id
+  if (user) {
+    filter.user = user;
+  }
 
   // tag filtering
   if (tags.length) {
     filter.tags = { $in: tags };
   }
 
-  //sorting
-  if (sort) {
-    sort = "-1" ? -1 : 1;
-  }
+  let sorted = sort == "-1" ? -1 : 1;
 
   return await Question.find(filter)
     .populate("tags")
     .limit(limit)
-    .sort(sort)
+    .sort({ createdAt: sorted })
     .lean();
 };
+
 export { findByUser, findByFilter };
