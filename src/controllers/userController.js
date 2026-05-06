@@ -5,6 +5,7 @@ import User from "../models/user.js";
 import multiavatar from "@multiavatar/multiavatar/esm";
 import { RefreshToken } from "../models/RefreshToken.js";
 import { getQuestionRelatedToUser } from "../services/question.services.js";
+const isDevelopment = process.env.isDevelopment;
 
 const createUser = async (req, res) => {
   try {
@@ -87,19 +88,15 @@ const loginUser = async (req, res) => {
 
     res.cookie("accessToken", token, {
       httpOnly: true,
-      // secure: true,
-      // sameSite: 'Strict',
-      secure: false, // localhost
-      sameSite: "lax", // localhost
+       secure: isDevelopment ? false : true, // localhost
+      sameSite: isDevelopment ? "Strict" : "lax", // localhost
       maxAge: 15 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      // secure: true,
-      // sameSite: 'Strict',
-      secure: false, // localhost
-      sameSite: "lax", // localhost
+      secure: isDevelopment ? false : true, // localhost
+      sameSite: isDevelopment ? "Strict" : "lax", // localhost
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
