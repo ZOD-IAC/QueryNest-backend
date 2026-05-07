@@ -4,6 +4,7 @@ import { protect } from "../middleware/authMiddleware.js";
 import {
   createUser,
   getUser,
+  getUserList,
   loginUser,
   logout,
   refreshAccessToken,
@@ -27,6 +28,8 @@ route.get("/me", protect, (req, res) => {
     ok: true,
   });
 });
+
+route.get("/api/getusers/", getUserList);
 
 route.post("/api/refreshtoken", refreshAccessToken);
 
