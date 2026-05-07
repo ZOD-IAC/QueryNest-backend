@@ -2,6 +2,7 @@ import User from "../models/user.js";
 import { Question, Vote } from "../models/question.js";
 import Tags from "../models/tags.js";
 import { VoteOption } from "../utils/Constants.js";
+import { getQuestionRelatedToFilter } from "../services/question.services.js";
 
 export const createQuestion = async (req, res) => {
   try {
@@ -140,10 +141,23 @@ export const fetchQuestoinDetail = async (req, res) => {
   }
 };
 
-export const getQuestionPageData = () => {
+export const getQuestionList = async (req, res) => {
   try {
-    const question = Question.find();
-  } catch (error) {}
+    const query = req.query;
+    const questions = await getQuestionRelatedToFilter(query);
+
+    return res.status(200).json({
+      ok: true,
+      message: `${questions.length} questions fetched!`,
+      questions,
+    });
+  } catch (error) {
+    console.warn(error, ": error");
+    return res.status(400).json({
+      message: "server error : failed to fetch!",
+      ok: false,
+    });
+  }
 };
 
 export const getQuestionTags = async (req, res) => {
@@ -181,6 +195,7 @@ export const addTag = async (req, res) => {
     }
 
     const newtag = await Tags.create({
+      _id: { $inc: +1 },
       tagName: tagName,
       slug: tagName.replace(" ", "-"),
     });

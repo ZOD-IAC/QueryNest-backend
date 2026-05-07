@@ -1,8 +1,11 @@
-import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import genToken from "../utils/generateToken.js";
+import { genToken, genRefreshToken } from "../utils/generateToken.js";
 import User from "../models/user.js";
 import multiavatar from "@multiavatar/multiavatar/esm";
+import { RefreshToken } from "../models/RefreshToken.js";
+import { getQuestionRelatedToUser } from "../services/question.services.js";
+import { getUserRelatedtoFilter } from "../services/user.services.js";
+const isDevelopment = process.env.isDevelopment;
 
 const createUser = async (req, res) => {
   try {
@@ -75,6 +78,27 @@ const loginUser = async (req, res) => {
     }
 
     const token = genToken(user._id);
+    const refreshToken = genRefreshToken();
+
+    await RefreshToken.create({
+      userId: user._id,
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: isDevelopment ? false : true, // localhost
+      sameSite: isDevelopment ? "Strict" : "lax", // localhost
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: isDevelopment ? false : true, // localhost
+      sameSite: isDevelopment ? "Strict" : "lax", // localhost
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.status(200).json({
       message: "User logged in successfully",
@@ -86,7 +110,6 @@ const loginUser = async (req, res) => {
         role: user.role,
         avatar: user.avatar,
       },
-      token,
       ok: true,
     });
   } catch (error) {
@@ -99,18 +122,63 @@ const loginUser = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  const token = req.cookies.refreshToken;
+  try {
+    if (token) {
+      await RefreshToken.deleteOne({ token });
+    }
+
+    res.clearCookie("token");
+    res.clearCookie("refreshToken");
+    res.status(200).json({ message: "Logged out", ok: true });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong!", ok: false });
+  }
+};
+
+const refreshAccessToken = async (req, res) => {
+  const token = req.cookies.refreshToken;
+  if (!token) return res.status(401).json({ ok: false });
+
+  const stored = await RefreshToken.findOne({ token });
+  if (!stored || stored.expiresAt < new Date()) {
+    // Clear the stale cookie too
+    res.clearCookie("refreshToken");
+    return res.status(403).json({ ok: false });
+  }
+
+  // Rotate — delete old, create new
+  await RefreshToken.deleteOne({ token });
+  const newRefreshToken = genRefreshToken();
+  await RefreshToken.create({
+    userId: stored.userId,
+    token: newRefreshToken,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
+
+  const newAccessToken = genToken(stored.userId);
+
+  res.cookie("accessToken", newAccessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "Strict" : "lax",
+    maxAge: 15 * 60 * 1000,
+  });
+  res.cookie("refreshToken", newRefreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "Strict" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  res.json({ ok: true });
+};
+
 const getUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const user = await User.findById(userId)
-      .select("-password")
-      .populate({
-        path: "questions",
-        populate: {
-          path: "tags", // ✅ nested populate — tags inside each question
-          model: "Tags",
-        },
-      });
+    const user = await User.findById(userId).select("-password");
 
     if (!user) {
       return res.status(400).json({
@@ -119,18 +187,48 @@ const getUser = async (req, res) => {
       });
     }
 
+    const question = await getQuestionRelatedToUser(userId);
+
     return res.status(200).json({
       message: "User fetched successfully",
-      user,
+      data: { user, question },
       ok: true,
     });
   } catch (error) {
     console.warn(error, ": server error");
     return res.status(500).json({
       message: "something went wrong",
+      data: {},
       ok: false,
     });
   }
 };
 
-export { createUser, loginUser, getUser };
+const getUserList = async (req, res) => {
+  try {
+    const query = req.query;
+    const user = await getUserRelatedtoFilter(query);
+
+    return res.status(200).json({
+      message: `${user.total} user found`,
+      ok: true,
+      data: user,
+    });
+  } catch (error) {
+    console.warn(error, ": server error");
+    return res.status(500).json({
+      message: "something went wrong",
+      data: {},
+      ok: false,
+    });
+  }
+};
+
+export {
+  createUser,
+  loginUser,
+  getUser,
+  logout,
+  refreshAccessToken,
+  getUserList,
+};

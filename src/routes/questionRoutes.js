@@ -8,6 +8,7 @@ import {
   getQuestionTags,
   questionVote,
   userQuestion,
+  getQuestionList
 } from "../controllers/questionController.js";
 
 const route = express.Router();
@@ -22,16 +23,14 @@ route.post("/del-question", protect, deleteQuestion);
 
 route.get("/user-questions/:userId", protect, userQuestion);
 
-route.post("/edit-question", (req, res) => {
+route.post("/api/edit-question", (req, res) => {
   res.send("logiin page");
 });
 
 route.get("/api/get-question/:questionId", fetchQuestoinDetail);
 route.patch("/api/:questionID/vote", protect, questionVote);
 
-route.get("/get-question/:questionId", (req, res) => {
-  res.send("logiin page");
-});
+route.get("/api/get-questionList", getQuestionList);
 
 route.get("/api/get-tags/:tagname", getQuestionTags);
 route.post("/api/add-tags/", addTag);
