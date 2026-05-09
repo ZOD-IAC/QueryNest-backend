@@ -1,17 +1,12 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-export const withTransaction = async (callback) => {
-  const session = await mongoose.startSession();
+// Use the same cookieOptions object everywhere
+const cookieOptions = (maxAge) => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax', // always lowercase
+  path: '/',
+  maxAge,
+});
 
-  try {
-    let result;
-
-    await session.withTransaction(async () => {
-      result = await callback(session);
-    });
-
-    return result;
-  } finally {
-    session.endSession();
-  }
-};
+export { cookieOptions };

@@ -48,6 +48,8 @@ export const getAnswers = async (req, res) => {
       path: "question",
     });
 
+    console.log(answers ,'<=== answer')
+
     if (!Answer) {
       return res.status(200).json({
         ok: true,

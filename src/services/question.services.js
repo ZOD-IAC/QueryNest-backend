@@ -1,7 +1,8 @@
 import {
   findByFilter,
   findByUser,
-} from "../repositories/question.repository.js";
+  findTagsbyFilter,
+} from '../repositories/question.repository.js';
 
 const getQuestionRelatedToUser = async (
   userId,
@@ -11,11 +12,19 @@ const getQuestionRelatedToUser = async (
 };
 
 const getQuestionRelatedToFilter = async (options) => {
-  const tagArr = options?.tags?.split(",") || [];
+  const tagArr = options?.tags?.split(',') || [];
   options = {
     ...options,
     tags: tagArr,
   };
   return await findByFilter(options);
 };
-export { getQuestionRelatedToUser, getQuestionRelatedToFilter };
+
+const getTagsRelatedToFilter = async (options) => {
+  return await findTagsbyFilter(options);
+};
+export {
+  getQuestionRelatedToUser,
+  getQuestionRelatedToFilter,
+  getTagsRelatedToFilter,
+};
