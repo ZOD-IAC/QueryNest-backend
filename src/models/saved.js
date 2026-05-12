@@ -1,8 +1,14 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 
-const Saved = new Schema({
-  saveType: { type: String, enum: ['answer', 'question'] },
-  question: { type: Schema.Types.ObjectId, ref: 'Question' },
-  answer: { type: Schema.Types.ObjectId, ref: 'Answer' },
-  user: { type: Schema.Types.ObjectId, ref: 'User' },
-});
+const SavedSchema = new Schema(
+  {
+    question: { type: Schema.Types.ObjectId, ref: "Question" },
+    user: { type: Schema.Types.ObjectId, ref: "User" },
+  },
+  { timestamps: true },
+);
+
+// Prevent duplicate saves
+SavedSchema.index({ user: 1, question: 1 }, { unique: true });
+
+export const Saved = mongoose.model("Saved", SavedSchema);

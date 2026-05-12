@@ -2,49 +2,46 @@ import express from "express";
 import mongoose from "mongoose";
 import { protect } from "../middleware/authMiddleware.js";
 import {
+  changeAvater,
   createUser,
+  editUser,
   getUser,
   getUserList,
+  getUserSaveList,
   loginUser,
   logout,
   refreshAccessToken,
+  removeAvater,
 } from "../controllers/userController.js";
 
 const route = express.Router();
 
-route.get("/", (req, res) => {
-  res.send("user routes");
-});
+// PUBLIC ROUTES -------------------------------------------------------------------------------------------------
 
-route.post("/api/register", createUser);
+//POST
 
-route.post("/api/login", loginUser);
+route.post("/api/register", createUser); // CREATE NEW USER
+route.post("/api/login", loginUser); // LOGIN USER
+route.post("/api/logout", logout); // LOGOUT USER
+route.post("/api/refreshtoken", refreshAccessToken); // REFRESH NEW USER TOKEN
 
-route.post("/api/logout", logout);
-
-route.get("/me", protect, (req, res) => {
+//GET
+route.get("/api/getusers/", getUserList); // GET USER LIST
+route.get("/api/getusersaved/:userId", getUserSaveList); //GET QUESTIONs SAVED BY USER
+route.get("/api/get-user/:userId", getUser);  // GET USER DEATILs
+route.get("/me", (req, res) => {
   res.json({
     user: req.user,
     ok: true,
   });
 });
 
-route.get("/api/getusers/", getUserList);
+// PRIVATE ROUTES -------------------------------------------------------------------------------------------------
+route.use(protect);
 
-route.post("/api/refreshtoken", refreshAccessToken);
-
-route.get("/api/get-user/:userId", getUser);
-
-route.post("/api/edit-user", (req, res) => {
-  res.send("logiin page");
-});
-
-route.post("/api/add-avatar", (req, res) => {
-  res.send("logiin page");
-});
-
-route.post("/api/remove-avatar", (req, res) => {
-  res.send("logiin page");
-});
+route.patch("/api/edit-user", editUser); // EDIT USER DETAILS
+route.patch("/api/add-avatar", changeAvater); // CHANGE USER AVATAR
+route.delete("/api/remove-avatar", removeAvater); // REMOVE AVATAR
+route.get("/question/:userId/save", getUserSaveList); // Saved Question
 
 export default route;

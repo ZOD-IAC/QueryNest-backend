@@ -39,6 +39,8 @@ export const answerQuestion = async (req, res) => {
     });
   }
 };
+export const editAnswer = async (req, res) => {};
+export const deleteAnswer = async (req, res) => {};
 
 export const getAnswers = async (req, res) => {
   try {
@@ -48,7 +50,6 @@ export const getAnswers = async (req, res) => {
       path: "question",
     });
 
-    console.log(answers ,'<=== answer')
 
     if (!Answer) {
       return res.status(200).json({
