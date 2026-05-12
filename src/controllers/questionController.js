@@ -190,12 +190,29 @@ export const fetchQuestoinDetail = async (req, res) => {
 export const getQuestionList = async (req, res) => {
   try {
     const query = req.query;
+    const userId = req.user?.id ?? null; // null if guest
     const questions = await getQuestionRelatedToFilter(query);
+
+    // If logged in, find which questions this user has saved
+    let savedSet = new Set();
+    if (userId) {
+      const saved = await Saved.find({
+        user: userId,
+        question: { $in: questions.map((q) => q._id) },
+      }).select("question");
+
+      savedSet = new Set(saved.map((s) => s.question.toString()));
+    }
+
+    const questionsWithSaved = questions.map((q) => ({
+      ...q.toObject(),
+      isSaved: savedSet.has(q._id.toString()), // false for guests always
+    }));
 
     return res.status(200).json({
       ok: true,
       message: `${questions.length} questions fetched!`,
-      questions,
+      questions: questionsWithSaved,
     });
   } catch (error) {
     console.warn(error, ": error");

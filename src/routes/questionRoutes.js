@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { protect } from "../middleware/authMiddleware.js";
+import { optionalAuth, protect } from "../middleware/authMiddleware.js";
 import {
   createQuestion,
   deleteQuestion,
@@ -17,8 +17,8 @@ const route = express.Router();
 // PUBLIC ROUTES --------------------------------------------------------------------------------------
 
 // GET
-route.get("/api/get-question/:questionId", fetchQuestoinDetail); // GET QUESTION DETAILS
-route.get("/api/get-questionList", getQuestionList);  // GET QUESTION LIST WITH DETAIL
+route.get("/api/get-question/:questionId",optionalAuth, fetchQuestoinDetail); // GET QUESTION DETAILS
+route.get("/api/get-questionList", optionalAuth,  getQuestionList);  // GET QUESTION LIST WITH DETAIL
 route.get("/api/getTags/", getTagList);  // GET TAGs LIST
 route.get("/api/getStats/", getStatsData);  // GET STATS DATA (QUESTION PAGE)
 
