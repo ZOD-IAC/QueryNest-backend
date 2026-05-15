@@ -29,12 +29,6 @@ route.post("/api/refreshtoken", refreshAccessToken); // REFRESH NEW USER TOKEN
 route.get("/api/getusers/", getUserList); // GET USER LIST
 route.get("/api/getusersaved/:userId", getUserSaveList); //GET QUESTIONs SAVED BY USER
 route.get("/api/get-user/:userId", getUser);  // GET USER DEATILs
-route.get("/me", (req, res) => {
-  res.json({
-    user: req.user,
-    ok: true,
-  });
-});
 
 // PRIVATE ROUTES -------------------------------------------------------------------------------------------------
 route.use(protect);
@@ -43,5 +37,11 @@ route.patch("/api/edit-user", editUser); // EDIT USER DETAILS
 route.patch("/api/add-avatar", changeAvater); // CHANGE USER AVATAR
 route.delete("/api/remove-avatar", removeAvater); // REMOVE AVATAR
 route.get("/question/:userId/save", getUserSaveList); // Saved Question
+route.get("/me", (req, res) => {
+  res.json({
+    user: req.user,
+    ok: true,
+  });
+});
 
 export default route;

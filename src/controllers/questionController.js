@@ -205,7 +205,7 @@ export const getQuestionList = async (req, res) => {
     }
 
     const questionsWithSaved = questions.map((q) => ({
-      ...q.toObject(),
+      ...q,
       isSaved: savedSet.has(q._id.toString()), // false for guests always
     }));
 
