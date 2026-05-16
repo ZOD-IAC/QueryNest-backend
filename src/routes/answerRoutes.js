@@ -1,25 +1,24 @@
-import express from 'express';
-import { protect } from '../middleware/authMiddleware.js';
-import { answerQuestion, getAnswers, upDownVoting } from '../controllers/answerController.js';
+import express from "express";
+import { protect } from "../middleware/authMiddleware.js";
+import {
+  answerQuestion,
+  deleteAnswer,
+  editAnswer,
+  getAnswers,
+  upDownVoting,
+} from "../controllers/answerController.js";
 
 const route = express.Router();
 
-route.get('/', (req, res) => {
-  res.send('answer routes');
-});
+// PUBLIC ROUTES
+route.get("/api/get-answers", getAnswers); // GET ANSWERS
 
-route.post('/api/write-answer', protect, answerQuestion);
+// PRIVATE ROUTES
+route.use(protect);
 
-route.post('/del-answer', (req, res) => {
-  res.send('answer routes');
-});
-
-route.post('/edit-answer', (req, res) => {
-  res.send('answer routes');
-});
-
-route.get('/api/get-answers', getAnswers);
-
-route.post('/api/answers-vote',protect , upDownVoting);
+route.post("/api/write-answer", answerQuestion);
+route.post("/api/answers-vote", upDownVoting);
+route.post("/del-answer", deleteAnswer);
+route.post("/edit-answer", editAnswer);
 
 export default route;

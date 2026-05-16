@@ -1,5 +1,5 @@
-import express from 'express';
-import { protect } from '../middleware/authMiddleware.js';
+import express, { Router } from "express";
+import { optionalAuth, protect } from "../middleware/authMiddleware.js";
 import {
   createQuestion,
   deleteQuestion,
@@ -10,31 +10,39 @@ import {
   createTag,
   getTagList,
   getStatsData,
-} from '../controllers/questionController.js';
+  saveQuestion,
+} from "../controllers/questionController.js";
 
 const route = express.Router();
+// PUBLIC ROUTES --------------------------------------------------------------------------------------
 
-route.get('/', (req, res) => {
-  res.send('question routes');
-});
+// GET
+route.get("/api/get-question/:questionId",optionalAuth, fetchQuestoinDetail); // GET QUESTION DETAILS
+route.get("/api/get-questionList", optionalAuth,  getQuestionList);  // GET QUESTION LIST WITH DETAIL
+route.get("/api/getTags/", getTagList);  // GET TAGs LIST
+route.get("/api/getStats/", getStatsData);  // GET STATS DATA (QUESTION PAGE)
 
-route.post('/create-question', protect, createQuestion);
+// POST
 
-route.post('/del-question', protect, deleteQuestion);
 
-route.get('/user-questions/:userId', protect, userQuestion);
+// PATCH
 
-route.post('/api/edit-question', (req, res) => {
-  res.send('logiin page');
-});
 
-route.get('/api/get-question/:questionId', fetchQuestoinDetail);
-route.patch('/api/:questionID/vote', protect, questionVote);
+// PRIVATE ROUTES --------------------------------------------------------------------------------------
+route.use(protect);
 
-route.get('/api/get-questionList', getQuestionList);
+// GET
+route.get("/user-questions/:userId", userQuestion);  // USER's QUESTIONS
 
-route.post('/api/add-tags/', createTag);
-route.get('/api/getTags/', getTagList);
-route.get('/api/getStats/', getStatsData);
+// POST
+route.post("/create-question", createQuestion); // CREATE QUESTION
+route.post("/del-question", deleteQuestion); // DELETE QUESTION
+route.post("/api/add-tags/", createTag); // CREATE QUESTION TAGs
+route.post("/api/:questionId/save", saveQuestion);  // SAVE QUESTION
+
+
+// PATCH
+route.patch("/api/:questionID/vote", questionVote);  // QUESTION VOTING
+
 
 export default route;

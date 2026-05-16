@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import { Saved } from "../models/saved.js";
 
 const fetchUserByFilter = async (options) => {
   const { userId, name, sortBy, limit = 10, page = 1, show = "" } = options;
@@ -58,4 +59,22 @@ const fetchUserByFilter = async (options) => {
   return { users, total, page: Number(page), limit: Number(limit) };
 };
 
-export { fetchUserByFilter };
+const fetchSavedQuestion = async (userId) => {
+  const getQuestion = await await Saved.find({ user: userId }).populate({
+    path: "question",
+    select: "title _id tags",
+    populate: [
+      {
+        path: "tags",
+      },
+      {
+        path: "user",
+        select: "-password -email -role",
+      },
+    ],
+  });
+
+  return getQuestion;
+};
+
+export { fetchUserByFilter, fetchSavedQuestion };
