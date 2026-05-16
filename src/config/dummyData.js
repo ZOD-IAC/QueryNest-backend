@@ -4,7 +4,7 @@ import User from "../models/user.js";
 import { Question } from "../models/question.js";
 import Tags from "../models/tags.js";
 
-const ADMIN_EMAIL = "admin@querynest.com";
+const ADMIN_EMAIL = "admin@solvly.com";
 const ADMIN_PASS = "Admin@123";
 
 export const bootstrap = async () => {
